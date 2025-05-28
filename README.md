@@ -40,3 +40,18 @@ Download the prebuilt kernel image for i.MX8QXP with Linux kernel version 5.4.70
 	
 
 7. All changes were made in imx8qxp-mek-isl79987.dts file, so replace the fdt_file with imx8qxp-mek-isl79987.dtb
+
+
+
+
+
+
+
+
+
+command to run camera 
+
+
+gst-launch-1.0 v4l2src device=/dev/video0 ! autovideosink
+
+gst-launch-1.0 filesrc location=0.YUYV ! videoparse width=640 height=480 framerate=30/1 ! autovideoconvert ! autovideosink
