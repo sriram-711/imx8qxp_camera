@@ -1,0 +1,184 @@
+/*
+ * Copyright 2019 NXP
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+#include "imx8qxp-mek.dts"
+
+
+/ {
+	lvds0_panel {
+    	//7 inch
+    	compatible = "auo,b101aw03";
+    	backlight = <&lvds_backlight1>;
+
+    	port {
+        	panel_lvds0_in: endpoint {
+            	remote-endpoint = <&lvds0_out>;
+	};
+ 	    	};
+	};
+
+};
+
+&lvds_backlight1{
+	status = "okay";
+};
+
+/delete-node/ &it6263_0_in;
+
+
+
+&ldb1 {
+
+	lvds-channel@0 {
+    	fsl,data-mapping = "spwg";
+    	fsl,data-width = <24>;
+
+    	port@1 {
+        	reg = <1>;
+
+        	lvds0_out: endpoint {
+            	remote-endpoint = <&panel_lvds0_in>;
+        	};
+    	};
+	};
+};
+
+&ldb2 {
+	status = "disabled";
+};
+
+
+&iomuxc {
+	pinctrl_isl7998x0: isl7998x0grp{
+		fsl,pins = <
+			IMX8QXP_MIPI_CSI0_GPIO0_01_LSIO_GPIO3_IO07		0xC0000041
+			IMX8QXP_MIPI_CSI0_GPIO0_00_LSIO_GPIO3_IO08		0xC0000041
+		>;
+	};
+};
+
+&cameradev {
+	/delete-property/parallel_csi;
+	status = "okay";
+};
+
+&parallel_csi {
+	status = "disabled";
+};
+
+&isi_0 {
+	interface = <2 0 2>;
+	deinterlace_blending;
+	ntsc_top = <0>;		/* 0 for ISL79987. */
+	status = "okay";
+};
+
+&isi_1 {
+	interface = <2 1 2>;
+	deinterlace_mode = <2>;  /* 0 ~ 1: No de-interlacing,
+				    2: Odd even weave, 3: Even odd weave
+				    4: Odd even blending, 5: Even odd blending
+				    6 ~ 7: Line doubling */
+	ntsc_top = <0>;		/* 0 for ISL79987. */
+	status = "okay";
+};
+
+&isi_2 {
+	interface = <2 2 2>;
+	deinterlace_mode = <2>;  /* 0 ~ 1: No de-interlacing,
+				    2: Odd even weave, 3: Even odd weave
+				    4: Odd even blending, 5: Even odd blending
+				    6 ~ 7: Line doubling */
+	ntsc_top = <0>;		/* 0 for ISL79987. */
+	status = "okay";
+};
+
+&isi_3 {
+	interface = <2 3 2>;
+	deinterlace_mode = <2>;  /* 0 ~ 1: No de-interlacing,
+				    2: Odd even weave, 3: Even odd weave
+				    4: Odd even blending, 5: Even odd blending
+				    6 ~ 7: Line doubling */
+	ntsc_top = <0>;		/* 0 for ISL79987. */
+	status = "okay";
+};
+
+&isi_4 {
+	interface = <2 0 2>;
+	deinterlace_mode = <4>;	/* 0 ~ 1: No de-interlacing,
+				   2: Odd even weave, 3: Even odd weave
+				   4: Odd even blending, 5: Even odd blending
+				   6 ~ 7: Line doubling */
+	ntsc_top = <0>;		/* 0 for ISL79987. */
+	status = "okay";
+};
+
+&isi_5 {
+	status = "disabled";
+};
+
+&isi_6 {
+	status = "disabled";
+};
+
+&isi_7 {
+	status = "disabled";
+};
+
+&mipi_csi_0 {
+	virtual-channel;
+	status = "okay";
+
+	/delete-node/port@0;
+
+	port@0 {
+		reg = <0>;
+		mipi_csi0_ep: endpoint {
+			remote-endpoint = <&isl7998x_mipi_ep>;
+			data-lanes = <1 2>;
+		};
+	};
+};
+//below lines were the changes are maded
+
+&i2c_mipi_csi0 {
+     status = "okay";
+     isl7998x: isl7998x@44 {
+         compatible = "intersil,isl7998x";
+         reg = <0x44>;
+         pinctrl-names = "default";
+         pinctrl-0 = <&pinctrl_mipi_csi0>;
+         clocks = <&clk_dummy>;
+         clock-names = "capture_mclk";
+         mclk = <27000000>;
+         mclk_source = <0>;
+         //pwn-gpios = <&lsio_gpio3 7 GPIO_ACTIVE_LOW>;
+         //rst-gpios = <&lsio_gpio3 8 GPIO_ACTIVE_HIGH>;
+         virtual-channel;
+         status = "okay";
+         port {
+            isl7998x_mipi_ep: endpoint {
+                remote-endpoint = <&mipi_csi0_ep>;
+            };
+        };
+     };
+     /delete-node/max9286_mipi@6a;
+};
+
+&i2c1 {
+	status = "okay";
+		i2c@3{
+			/delete-node/ isl29023@44;
+		};
+};
